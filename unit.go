@@ -164,7 +164,7 @@ func (s *SmartContract) GetUnit(ctx contractapi.TransactionContextInterface, id 
 	return FromUnitInner(&unit), nil
 }
 
-func (s *SmartContract) ListUnits(ctx contractapi.TransactionContextInterface) ([]*Unit, error) {
+func (s *SmartContract) GetAllUnits(ctx contractapi.TransactionContextInterface) ([]*Unit, error) {
 	if err := s.HasPermission(ctx, UnitsRead); err != nil {
 		return nil, err
 	}

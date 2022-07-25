@@ -117,7 +117,7 @@ func (s *SmartContract) MakeTransaction(ctx contractapi.TransactionContextInterf
 		return err
 	}
 
-	transactions, err := s.ListTransactionsForOrderInner(ctx, orderID)
+	transactions, err := s.GetAllTransactionsForOrderInner(ctx, orderID)
 	if err != nil {
 		return err
 	}
@@ -302,7 +302,7 @@ func (s *SmartContract) GetTransaction(ctx contractapi.TransactionContextInterfa
 	return s.FromTransactionInner(ctx, &unit), nil
 }
 
-func (s *SmartContract) ListTransactionsForOrderInner(ctx contractapi.TransactionContextInterface, orderID string) ([]*TransactionInner, error) {
+func (s *SmartContract) GetAllTransactionsForOrderInner(ctx contractapi.TransactionContextInterface, orderID string) ([]*TransactionInner, error) {
 	if err := s.HasPermission(ctx, TransactionsRead); err != nil {
 		return nil, err
 	}
@@ -333,7 +333,7 @@ func (s *SmartContract) ListTransactionsForOrderInner(ctx contractapi.Transactio
 	return assets, nil
 }
 
-func (s *SmartContract) ListTransactionsForOrder(ctx contractapi.TransactionContextInterface, orderID string) ([]*Transaction, error) {
+func (s *SmartContract) GetAllTransactionsForOrder(ctx contractapi.TransactionContextInterface, orderID string) ([]*Transaction, error) {
 	if err := s.HasPermission(ctx, TransactionsRead); err != nil {
 		return nil, err
 	}

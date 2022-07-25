@@ -158,7 +158,7 @@ func (s *SmartContract) GetProduct(ctx contractapi.TransactionContextInterface, 
 	return s.FromProductInner(ctx, &product), nil
 }
 
-func (s *SmartContract) ListProducts(ctx contractapi.TransactionContextInterface) ([]*Product, error) {
+func (s *SmartContract) GetAllProducts(ctx contractapi.TransactionContextInterface) ([]*Product, error) {
 	if err := s.HasPermission(ctx, ProductsRead); err != nil {
 		return nil, err
 	}

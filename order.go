@@ -259,7 +259,7 @@ func (s *SmartContract) GetOrderInner(ctx contractapi.TransactionContextInterfac
 	return &unit, nil
 }
 
-func (s *SmartContract) ListOrders(ctx contractapi.TransactionContextInterface) ([]*Order, error) {
+func (s *SmartContract) GetAllOrders(ctx contractapi.TransactionContextInterface) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
 	}
@@ -288,7 +288,7 @@ func (s *SmartContract) ListOrders(ctx contractapi.TransactionContextInterface) 
 	return assets, nil
 }
 
-func (s *SmartContract) ListOrdersByStatus(ctx contractapi.TransactionContextInterface, statusInput string) ([]*Order, error) {
+func (s *SmartContract) GetAllOrdersByStatus(ctx contractapi.TransactionContextInterface, statusInput string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
 	}
@@ -323,7 +323,7 @@ func (s *SmartContract) ListOrdersByStatus(ctx contractapi.TransactionContextInt
 	return assets, nil
 }
 
-func (s *SmartContract) ListOrdersByOrg(ctx contractapi.TransactionContextInterface, org string) ([]*Order, error) {
+func (s *SmartContract) GetAllOrdersByOrganization(ctx contractapi.TransactionContextInterface, org string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
 	}
@@ -353,7 +353,7 @@ func (s *SmartContract) ListOrdersByOrg(ctx contractapi.TransactionContextInterf
 	return assets, nil
 }
 
-func (s *SmartContract) ListOrdersByOrgAndStatus(ctx contractapi.TransactionContextInterface, org, statusInput string) ([]*Order, error) {
+func (s *SmartContract) GetAllOrdersByOrganizationAndStatus(ctx contractapi.TransactionContextInterface, org, statusInput string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
 	}

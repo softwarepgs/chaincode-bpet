@@ -197,7 +197,7 @@ func (s *SmartContract) GetOrganization(ctx contractapi.TransactionContextInterf
 	return s.FromOrganizationInner(ctx, &product), nil
 }
 
-func (s *SmartContract) ListOrganizations(ctx contractapi.TransactionContextInterface) ([]*Organization, error) {
+func (s *SmartContract) GetAllOrganizations(ctx contractapi.TransactionContextInterface) ([]*Organization, error) {
 	if err := s.HasPermission(ctx, OrganizationsRead); err != nil {
 		return nil, err
 	}

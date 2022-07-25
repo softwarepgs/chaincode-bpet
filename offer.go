@@ -16,22 +16,26 @@ type OfferInner struct {
 	Doc
 
 	ID             string `json:"id"`
-	Amount         uint32 `json:"amount"`
+	Value          Price  `json:"value"`
 	OrganizationID string `json:"organization_id"`
 	RequestID      string `json:"request_id"`
 }
 
 type Offer struct {
 	ID             string `json:"id"`
-	Amount         uint32 `json:"amount"`
+	Value          Price  `json:"value"`
 	OrganizationID string `json:"organization_id"`
 	RequestID      string `json:"request_id"`
 }
 
 func (s *SmartContract) FromOfferInner(_ contractapi.TransactionContextInterface, p *OfferInner) *Offer {
 	return &Offer{
-		ID:             p.ID,
-		Amount:         p.Amount,
+		ID: p.ID,
+		Value: Price{
+			Amount:   p.Value.Amount,
+			Currency: p.Value.Currency,
+			Exponent: p.Value.Exponent,
+		},
 		OrganizationID: p.OrganizationID,
 		RequestID:      p.RequestID,
 	}
@@ -50,7 +54,7 @@ func (s *SmartContract) OfferExist(ctx contractapi.TransactionContextInterface, 
 	return assetJSON != nil, nil
 }
 
-func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, id string, amount uint32, organizationID string, requestID string) error {
+func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, id string, value uint32, currency string, exponent uint32, organizationID string, requestID string) error {
 	if err := s.HasPermission(ctx, OffersCreate); err != nil {
 		return err
 	}
@@ -83,9 +87,13 @@ func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, i
 	}
 
 	offer := OfferInner{
-		Doc:            doc,
-		ID:             s.GetOfferID(ctx, id),
-		Amount:         amount,
+		Doc: doc,
+		ID:  s.GetOfferID(ctx, id),
+		Value: Price{
+			Amount:   value,
+			Currency: currency,
+			Exponent: exponent,
+		},
 		OrganizationID: organizationID,
 		RequestID:      requestID,
 	}
@@ -151,7 +159,7 @@ func (s *SmartContract) GetOffer(ctx contractapi.TransactionContextInterface, id
 	return s.FromOfferInner(ctx, &o), nil
 }
 
-func (s *SmartContract) ListOffersForRequestInner(ctx contractapi.TransactionContextInterface, requestID string) ([]*OfferInner, error) {
+func (s *SmartContract) GetAllOffersForRequestInner(ctx contractapi.TransactionContextInterface, requestID string) ([]*OfferInner, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err
 	}
@@ -182,7 +190,7 @@ func (s *SmartContract) ListOffersForRequestInner(ctx contractapi.TransactionCon
 	return assets, nil
 }
 
-func (s *SmartContract) ListOffersForRequest(ctx contractapi.TransactionContextInterface, requestID string) ([]*Offer, error) {
+func (s *SmartContract) GetAllOffersForRequest(ctx contractapi.TransactionContextInterface, requestID string) ([]*Offer, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err
 	}

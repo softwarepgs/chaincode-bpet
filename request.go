@@ -16,25 +16,19 @@ type RequestInner struct {
 	Doc
 
 	ID          string        `json:"id"`
-	Value       Value         `json:"value"`
 	Description string        `json:"description"`
 	Status      RequestStatus `json:"status"`
 }
 
 type Request struct {
 	ID          string        `json:"id"`
-	Value       Value         `json:"value"`
 	Description string        `json:"description"`
 	Status      RequestStatus `json:"status"`
 }
 
 func (s *SmartContract) FromRequestInner(ctx contractapi.TransactionContextInterface, p *RequestInner) *Request {
 	return &Request{
-		ID: p.ID,
-		Value: Value{
-			Amount:   p.Value.Amount,
-			Currency: p.Value.Currency,
-		},
+		ID:          p.ID,
 		Description: p.Description,
 		Status:      p.Status,
 	}
@@ -53,7 +47,7 @@ func (s *SmartContract) RequestExist(ctx contractapi.TransactionContextInterface
 	return assetJSON != nil, nil
 }
 
-func (s *SmartContract) CreateRequest(ctx contractapi.TransactionContextInterface, id string, value uint32, currency string, description string) error {
+func (s *SmartContract) CreateRequest(ctx contractapi.TransactionContextInterface, id string, description string) error {
 	if err := s.HasPermission(ctx, RequestsCreate); err != nil {
 		return err
 	}
@@ -78,12 +72,8 @@ func (s *SmartContract) CreateRequest(ctx contractapi.TransactionContextInterfac
 	}
 
 	r := RequestInner{
-		Doc: doc,
-		ID:  s.GetRequestID(ctx, id),
-		Value: Value{
-			Amount:   value,
-			Currency: currency,
-		},
+		Doc:         doc,
+		ID:          s.GetRequestID(ctx, id),
 		Description: description,
 		Status:      RequestStatusOpen,
 	}
