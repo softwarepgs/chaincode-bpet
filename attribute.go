@@ -6,6 +6,8 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+//Attributes used for access control
+//Must be issued when creating user CA
 const (
 	UnitsCreate Attribute = "units.create"
 	UnitsRead   Attribute = "units.read"
@@ -49,6 +51,8 @@ func (a Attribute) String() string {
 	return string(a)
 }
 
+//Main function to check whether the current user has the required permissions to run the command
+//Returns "not authorized" if the user does not have the required permissions
 func (s *SmartContract) HasPermission(ctx contractapi.TransactionContextInterface, att Attribute) error {
 	if !s.checkPermissions {
 		return nil

@@ -12,6 +12,8 @@ const (
 	OrderDoc DocType = "order"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type OrderInner struct {
 	Doc
 
@@ -36,6 +38,7 @@ type Order struct {
 	Unit         *Unit         `json:"unit_id"`
 }
 
+//Parse order from the data on the database
 func (s *SmartContract) FromOrderInner(ctx contractapi.TransactionContextInterface, p *OrderInner) *Order {
 	org, _ := s.GetOrganization(ctx, p.OrganizationID)
 	product, _ := s.GetProduct(ctx, p.ProductID)
@@ -61,6 +64,7 @@ func (s *SmartContract) GetOrderID(ctx contractapi.TransactionContextInterface, 
 	return string(OrderDoc) + "_" + id
 }
 
+//Checks if order with the given ID exists
 func (s *SmartContract) OrderExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetOrderID(ctx, id))
 	if err != nil {
@@ -70,6 +74,7 @@ func (s *SmartContract) OrderExist(ctx contractapi.TransactionContextInterface, 
 	return assetJSON != nil, nil
 }
 
+//Checks if list of orders with the given IDs exists
 func (s *SmartContract) OrdersExist(ctx contractapi.TransactionContextInterface, ids []string) error {
 	for _, id := range ids {
 		e, err := s.OrderExist(ctx, id)
@@ -85,6 +90,8 @@ func (s *SmartContract) OrdersExist(ctx contractapi.TransactionContextInterface,
 	return nil
 }
 
+//Creates a new order with the given ID
+//User inputs the ID of the offer, the amount of product being sold, the total value of money, the exponent (number of decimals), the currency, the type of Order (BUY or SELL), the ID of the organization, the ID of the product and the ID of the unit
 func (s *SmartContract) CreateOrder(ctx contractapi.TransactionContextInterface, id string, amount uint32, price uint32, priceExponent uint32, currency string, typeInput string, organizationID string, productID string, unitID string) error {
 	if err := s.HasPermission(ctx, OrdersCreate); err != nil {
 		return err
@@ -172,6 +179,7 @@ func (s *SmartContract) CreateOrder(ctx contractapi.TransactionContextInterface,
 	return nil
 }
 
+//Changes status of order to "CLOSED"
 func (s *SmartContract) CloseOrder(ctx contractapi.TransactionContextInterface, id string) error {
 	if err := s.HasPermission(ctx, OrdersUpdate); err != nil {
 		return err
@@ -181,8 +189,8 @@ func (s *SmartContract) CloseOrder(ctx contractapi.TransactionContextInterface, 
 	if err != nil {
 		return err
 	}
-	if exists {
-		return fmt.Errorf("the asset %s already exists", id)
+	if !exists {
+		return fmt.Errorf("the asset %s does not exist", id)
 	}
 
 	order, err := s.GetOrderInner(ctx, id)
@@ -211,6 +219,7 @@ func (s *SmartContract) CloseOrder(ctx contractapi.TransactionContextInterface, 
 	return nil
 }
 
+//Returns Order with given ID
 func (s *SmartContract) GetOrder(ctx contractapi.TransactionContextInterface, id string) (*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
@@ -235,6 +244,7 @@ func (s *SmartContract) GetOrder(ctx contractapi.TransactionContextInterface, id
 	return s.FromOrderInner(ctx, &unit), nil
 }
 
+//Returns OrderInner with given ID
 func (s *SmartContract) GetOrderInner(ctx contractapi.TransactionContextInterface, id string) (*OrderInner, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
@@ -259,6 +269,7 @@ func (s *SmartContract) GetOrderInner(ctx contractapi.TransactionContextInterfac
 	return &unit, nil
 }
 
+//Returns all Order in the system
 func (s *SmartContract) GetAllOrders(ctx contractapi.TransactionContextInterface) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
@@ -288,6 +299,7 @@ func (s *SmartContract) GetAllOrders(ctx contractapi.TransactionContextInterface
 	return assets, nil
 }
 
+//Returns all Order with the given status
 func (s *SmartContract) GetAllOrdersByStatus(ctx contractapi.TransactionContextInterface, statusInput string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
@@ -323,6 +335,7 @@ func (s *SmartContract) GetAllOrdersByStatus(ctx contractapi.TransactionContextI
 	return assets, nil
 }
 
+//Returns all Order associated to the organization with the given ID
 func (s *SmartContract) GetAllOrdersByOrganization(ctx contractapi.TransactionContextInterface, org string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err
@@ -353,6 +366,7 @@ func (s *SmartContract) GetAllOrdersByOrganization(ctx contractapi.TransactionCo
 	return assets, nil
 }
 
+//Returns all Order associated to the organization with the given ID and the given status
 func (s *SmartContract) GetAllOrdersByOrganizationAndStatus(ctx contractapi.TransactionContextInterface, org, statusInput string) ([]*Order, error) {
 	if err := s.HasPermission(ctx, OrdersRead); err != nil {
 		return nil, err

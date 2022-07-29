@@ -12,6 +12,8 @@ const (
 	OfferDoc DocType = "offer"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type OfferInner struct {
 	Doc
 
@@ -28,6 +30,7 @@ type Offer struct {
 	RequestID      string `json:"request_id"`
 }
 
+//Parse offer from the data on the database
 func (s *SmartContract) FromOfferInner(_ contractapi.TransactionContextInterface, p *OfferInner) *Offer {
 	return &Offer{
 		ID: p.ID,
@@ -45,6 +48,7 @@ func (s *SmartContract) GetOfferID(_ contractapi.TransactionContextInterface, id
 	return string(OfferDoc) + "_" + id
 }
 
+//Checks if offer with the given ID exists
 func (s *SmartContract) OfferExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetOfferID(ctx, id))
 	if err != nil {
@@ -54,6 +58,8 @@ func (s *SmartContract) OfferExist(ctx contractapi.TransactionContextInterface, 
 	return assetJSON != nil, nil
 }
 
+//Creates a new offer for the request with the given ID
+//User inputs the ID of the offer, the total value of money, the currency, the exponent (number of decimals), the ID of the organization and the ID of the request
 func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, id string, value uint32, currency string, exponent uint32, organizationID string, requestID string) error {
 	if err := s.HasPermission(ctx, OffersCreate); err != nil {
 		return err
@@ -78,6 +84,15 @@ func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, i
 	clientID, err := s.GetSubmittingClientIdentity(ctx)
 	if err != nil {
 		return err
+	}
+
+	request, err := s.GetRequest(ctx, requestID)
+	if err != nil {
+		return err
+	}
+
+	if request.Status == RequestStatusClosed {
+		return fmt.Errorf("request is closed, can't offer")
 	}
 
 	doc := Doc{
@@ -111,6 +126,7 @@ func (s *SmartContract) MakeOffer(ctx contractapi.TransactionContextInterface, i
 	return nil
 }
 
+//Returns OfferInner with the given ID
 func (s *SmartContract) GetOfferInner(ctx contractapi.TransactionContextInterface, id string) (*OfferInner, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err
@@ -135,6 +151,7 @@ func (s *SmartContract) GetOfferInner(ctx contractapi.TransactionContextInterfac
 	return &o, nil
 }
 
+//Returns Offer with the given ID
 func (s *SmartContract) GetOffer(ctx contractapi.TransactionContextInterface, id string) (*Offer, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err
@@ -159,6 +176,7 @@ func (s *SmartContract) GetOffer(ctx contractapi.TransactionContextInterface, id
 	return s.FromOfferInner(ctx, &o), nil
 }
 
+//Returns all OfferInner associated to the request with the given ID
 func (s *SmartContract) GetAllOffersForRequestInner(ctx contractapi.TransactionContextInterface, requestID string) ([]*OfferInner, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err
@@ -190,6 +208,7 @@ func (s *SmartContract) GetAllOffersForRequestInner(ctx contractapi.TransactionC
 	return assets, nil
 }
 
+//Returns all Offer associated to the request with the given ID
 func (s *SmartContract) GetAllOffersForRequest(ctx contractapi.TransactionContextInterface, requestID string) ([]*Offer, error) {
 	if err := s.HasPermission(ctx, OffersRead); err != nil {
 		return nil, err

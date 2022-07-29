@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"log"
+
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+//Start
 func main() {
 	assetChaincode, err := contractapi.NewChaincode(&SmartContract{
 		checkPermissions: true,

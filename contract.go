@@ -12,6 +12,7 @@ type SmartContract struct {
 	checkPermissions bool
 }
 
+//Returns current user's ID
 func (s *SmartContract) GetSubmittingClientIdentity(ctx contractapi.TransactionContextInterface) (string, error) {
 	b64ID, err := ctx.GetClientIdentity().GetID()
 	if err != nil {
@@ -26,6 +27,7 @@ func (s *SmartContract) GetSubmittingClientIdentity(ctx contractapi.TransactionC
 	return string(decodeID), nil
 }
 
+//Returns current user's organization
 func (s *SmartContract) GetSubmittingClientOrganization(ctx contractapi.TransactionContextInterface) (string, error) {
 	return ctx.GetClientIdentity().GetMSPID()
 }

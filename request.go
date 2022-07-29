@@ -12,6 +12,8 @@ const (
 	RequestDoc DocType = "request"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type RequestInner struct {
 	Doc
 
@@ -26,6 +28,7 @@ type Request struct {
 	Status      RequestStatus `json:"status"`
 }
 
+//Parse request from the data on the database
 func (s *SmartContract) FromRequestInner(ctx contractapi.TransactionContextInterface, p *RequestInner) *Request {
 	return &Request{
 		ID:          p.ID,
@@ -38,6 +41,7 @@ func (s *SmartContract) GetRequestID(ctx contractapi.TransactionContextInterface
 	return string(RequestDoc) + "_" + id
 }
 
+//Checks if request with the given ID exists
 func (s *SmartContract) RequestExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetRequestID(ctx, id))
 	if err != nil {
@@ -47,6 +51,8 @@ func (s *SmartContract) RequestExist(ctx contractapi.TransactionContextInterface
 	return assetJSON != nil, nil
 }
 
+//Creates a new request with the given ID
+//User inputs the ID of the request and a description of the project being presented
 func (s *SmartContract) CreateRequest(ctx contractapi.TransactionContextInterface, id string, description string) error {
 	if err := s.HasPermission(ctx, RequestsCreate); err != nil {
 		return err
@@ -91,6 +97,7 @@ func (s *SmartContract) CreateRequest(ctx contractapi.TransactionContextInterfac
 	return nil
 }
 
+//Sets the status of the request to "CLOSED"
 func (s *SmartContract) CloseRequest(ctx contractapi.TransactionContextInterface, id string) error {
 	if err := s.HasPermission(ctx, RequestsUpdate); err != nil {
 		return err
@@ -100,8 +107,8 @@ func (s *SmartContract) CloseRequest(ctx contractapi.TransactionContextInterface
 	if err != nil {
 		return err
 	}
-	if exists {
-		return fmt.Errorf("the asset %s already exists", id)
+	if !exists {
+		return fmt.Errorf("the asset %s does not exist", id)
 	}
 
 	request, err := s.GetRequestInner(ctx, id)
@@ -125,6 +132,7 @@ func (s *SmartContract) CloseRequest(ctx contractapi.TransactionContextInterface
 	return nil
 }
 
+//Returns Request with the given ID
 func (s *SmartContract) GetRequest(ctx contractapi.TransactionContextInterface, id string) (*Request, error) {
 	if err := s.HasPermission(ctx, RequestsRead); err != nil {
 		return nil, err
@@ -149,6 +157,7 @@ func (s *SmartContract) GetRequest(ctx contractapi.TransactionContextInterface, 
 	return s.FromRequestInner(ctx, &r), nil
 }
 
+//Returns RequestInner with the given ID
 func (s *SmartContract) GetRequestInner(ctx contractapi.TransactionContextInterface, id string) (*RequestInner, error) {
 	if err := s.HasPermission(ctx, RequestsRead); err != nil {
 		return nil, err
@@ -173,7 +182,8 @@ func (s *SmartContract) GetRequestInner(ctx contractapi.TransactionContextInterf
 	return &r, nil
 }
 
-func (s *SmartContract) ListRequests(ctx contractapi.TransactionContextInterface) ([]*Request, error) {
+//Returns all Request in the system
+func (s *SmartContract) GetAllRequests(ctx contractapi.TransactionContextInterface) ([]*Request, error) {
 	if err := s.HasPermission(ctx, RequestsRead); err != nil {
 		return nil, err
 	}
@@ -202,7 +212,8 @@ func (s *SmartContract) ListRequests(ctx contractapi.TransactionContextInterface
 	return assets, nil
 }
 
-func (s *SmartContract) ListRequestsByStatus(ctx contractapi.TransactionContextInterface, statusInput string) ([]*Request, error) {
+//Returns all Request with the given status
+func (s *SmartContract) GetAllRequestsByStatus(ctx contractapi.TransactionContextInterface, statusInput string) ([]*Request, error) {
 	if err := s.HasPermission(ctx, RequestsRead); err != nil {
 		return nil, err
 	}

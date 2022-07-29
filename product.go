@@ -12,6 +12,8 @@ const (
 	ProductDoc DocType = "product"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type ProductInner struct {
 	Doc
 
@@ -28,6 +30,7 @@ type Product struct {
 	Units       []*Unit `json:"units"`
 }
 
+//Parse product from the data on the database
 func (s *SmartContract) FromProductInner(ctx contractapi.TransactionContextInterface, p *ProductInner) *Product {
 	units := make([]*Unit, 0, len(p.UnitIDs))
 	for _, unitID := range p.UnitIDs {
@@ -51,6 +54,7 @@ func (s *SmartContract) GetProductID(_ contractapi.TransactionContextInterface, 
 	return string(ProductDoc) + "_" + id
 }
 
+//Checks if product with the given ID exists
 func (s *SmartContract) ProductExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetProductID(ctx, id))
 	if err != nil {
@@ -60,7 +64,9 @@ func (s *SmartContract) ProductExist(ctx contractapi.TransactionContextInterface
 	return assetJSON != nil, nil
 }
 
-func (s *SmartContract) CreateProduct(ctx contractapi.TransactionContextInterface, id, name string, description string, units []string) error {
+//Creates a new product with the given ID
+//User inputs the id of the product, the name of the product, a description of the product, a list of units
+func (s *SmartContract) CreateProduct(ctx contractapi.TransactionContextInterface, id, name string, description string, unitsTemp string) error {
 	if err := s.HasPermission(ctx, ProductsCreate); err != nil {
 		return err
 	}
@@ -73,6 +79,8 @@ func (s *SmartContract) CreateProduct(ctx contractapi.TransactionContextInterfac
 	if exists {
 		return fmt.Errorf("the asset %s already exists", id)
 	}
+
+	units := strings.Split(unitsTemp, ";")
 
 	if err := s.UnitsExist(ctx, units); err != nil {
 		return err
@@ -110,6 +118,7 @@ func (s *SmartContract) CreateProduct(ctx contractapi.TransactionContextInterfac
 	return nil
 }
 
+//Returns ProductInner with the given ID
 func (s *SmartContract) GetProductInner(ctx contractapi.TransactionContextInterface, id string) (*ProductInner, error) {
 	if err := s.HasPermission(ctx, ProductsRead); err != nil {
 		return nil, err
@@ -134,6 +143,7 @@ func (s *SmartContract) GetProductInner(ctx contractapi.TransactionContextInterf
 	return &product, nil
 }
 
+//Returns Product with the given ID
 func (s *SmartContract) GetProduct(ctx contractapi.TransactionContextInterface, id string) (*Product, error) {
 	if err := s.HasPermission(ctx, ProductsRead); err != nil {
 		return nil, err
@@ -158,6 +168,7 @@ func (s *SmartContract) GetProduct(ctx contractapi.TransactionContextInterface, 
 	return s.FromProductInner(ctx, &product), nil
 }
 
+//Returns all Product in the system
 func (s *SmartContract) GetAllProducts(ctx contractapi.TransactionContextInterface) ([]*Product, error) {
 	if err := s.HasPermission(ctx, ProductsRead); err != nil {
 		return nil, err
@@ -189,6 +200,7 @@ func (s *SmartContract) GetAllProducts(ctx contractapi.TransactionContextInterfa
 	return assets, nil
 }
 
+//Removes product from the system
 func (s *SmartContract) DeleteProduct(ctx contractapi.TransactionContextInterface, id string) error {
 	if err := s.HasPermission(ctx, ProductsDelete); err != nil {
 		return err

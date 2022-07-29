@@ -12,6 +12,8 @@ const (
 	OrganizationDoc DocType = "organization"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type OrganizationInner struct {
 	Doc
 
@@ -30,6 +32,7 @@ type Organization struct {
 	PhoneNumber string `json:"phone_number"`
 }
 
+//Parse organization from the data on the database
 func (s *SmartContract) FromOrganizationInner(_ contractapi.TransactionContextInterface, p *OrganizationInner) *Organization {
 	return &Organization{
 		ID:          p.ID,
@@ -44,6 +47,7 @@ func (s *SmartContract) GetOrganizationID(_ contractapi.TransactionContextInterf
 	return string(UnitDoc) + "_" + id
 }
 
+//Checks if organization with the given ID exists
 func (s *SmartContract) OrganizationExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetOrganizationID(ctx, id))
 	if err != nil {
@@ -53,6 +57,8 @@ func (s *SmartContract) OrganizationExist(ctx contractapi.TransactionContextInte
 	return assetJSON != nil, nil
 }
 
+//Creates a new organization with the given ID
+//User inputs the ID of the organization, the name of the organization, a description of the organization, the address of the organization and the phone number
 func (s *SmartContract) CreateOrganization(ctx contractapi.TransactionContextInterface, id string, name string, description string, address string, phoneNumber string) error {
 	if err := s.HasPermission(ctx, OrganizationsCreate); err != nil {
 		return err
@@ -100,6 +106,8 @@ func (s *SmartContract) CreateOrganization(ctx contractapi.TransactionContextInt
 	return nil
 }
 
+//Updates information regarding the organization
+//Updates the name, description, address and phone number of the organization with the given ID
 func (s *SmartContract) UpdateOrganization(ctx contractapi.TransactionContextInterface, id string, name string, description string, address string, phoneNumber string) error {
 	if err := s.HasPermission(ctx, OrganizationsCreate); err != nil {
 		if innerErr := s.HasPermission(ctx, OrganizationsUpdate); innerErr != nil {
@@ -149,6 +157,7 @@ func (s *SmartContract) UpdateOrganization(ctx contractapi.TransactionContextInt
 	return nil
 }
 
+//Returns OrganizationInner with the given ID
 func (s *SmartContract) GetOrganizationInner(ctx contractapi.TransactionContextInterface, id string) (*OrganizationInner, error) {
 	if err := s.HasPermission(ctx, OrganizationsRead); err != nil {
 		return nil, err
@@ -173,6 +182,7 @@ func (s *SmartContract) GetOrganizationInner(ctx contractapi.TransactionContextI
 	return &product, nil
 }
 
+//Returns Organization with the given ID
 func (s *SmartContract) GetOrganization(ctx contractapi.TransactionContextInterface, id string) (*Organization, error) {
 	if err := s.HasPermission(ctx, OrganizationsRead); err != nil {
 		return nil, err
@@ -197,6 +207,7 @@ func (s *SmartContract) GetOrganization(ctx contractapi.TransactionContextInterf
 	return s.FromOrganizationInner(ctx, &product), nil
 }
 
+//Returns all organizations in the system
 func (s *SmartContract) GetAllOrganizations(ctx contractapi.TransactionContextInterface) ([]*Organization, error) {
 	if err := s.HasPermission(ctx, OrganizationsRead); err != nil {
 		return nil, err
@@ -228,6 +239,7 @@ func (s *SmartContract) GetAllOrganizations(ctx contractapi.TransactionContextIn
 	return assets, nil
 }
 
+//Deletes the organization from the system
 func (s *SmartContract) DeleteOrganization(ctx contractapi.TransactionContextInterface, id string) error {
 	if err := s.HasPermission(ctx, OrganizationsDelete); err != nil {
 		return err

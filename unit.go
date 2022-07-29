@@ -12,6 +12,8 @@ const (
 	UnitDoc DocType = "unit"
 )
 
+//Represents data stored in database
+//Contains the doctype
 type UnitInner struct {
 	Doc
 
@@ -28,6 +30,7 @@ type Unit struct {
 	Exponent    uint32 `json:"exponent"`
 }
 
+//Parse Unite from the data on the database
 func FromUnitInner(u *UnitInner) *Unit {
 	if u == nil {
 		return nil
@@ -45,6 +48,8 @@ func (s *SmartContract) GetUnitID(_ contractapi.TransactionContextInterface, id 
 	return string(UnitDoc) + "_" + id
 }
 
+//Creates a new unit with the given ID
+//User inputs the ID of the unit, name of the unit, description, exponent
 func (s *SmartContract) CreateUnit(ctx contractapi.TransactionContextInterface, id string, name string, description string, exponent uint32) error {
 	if err := s.HasPermission(ctx, UnitsCreate); err != nil {
 		return err
@@ -91,6 +96,7 @@ func (s *SmartContract) CreateUnit(ctx contractapi.TransactionContextInterface, 
 	return nil
 }
 
+//Checks if unit with the given ID exists
 func (s *SmartContract) UnitExist(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
 	assetJSON, err := ctx.GetStub().GetState(s.GetUnitID(ctx, id))
 	if err != nil {
@@ -100,6 +106,7 @@ func (s *SmartContract) UnitExist(ctx contractapi.TransactionContextInterface, i
 	return assetJSON != nil, nil
 }
 
+//Checks if units with the given IDs exist
 func (s *SmartContract) UnitsExist(ctx contractapi.TransactionContextInterface, ids []string) error {
 	for _, id := range ids {
 		e, err := s.UnitExist(ctx, id)
@@ -116,6 +123,7 @@ func (s *SmartContract) UnitsExist(ctx contractapi.TransactionContextInterface, 
 	return nil
 }
 
+//Returns UnitInner with the given ID
 func (s *SmartContract) GetUnitInner(ctx contractapi.TransactionContextInterface, id string) (*UnitInner, error) {
 	if err := s.HasPermission(ctx, UnitsRead); err != nil {
 		return nil, err
@@ -140,6 +148,7 @@ func (s *SmartContract) GetUnitInner(ctx contractapi.TransactionContextInterface
 	return &unit, nil
 }
 
+//Returns Unit with the given ID
 func (s *SmartContract) GetUnit(ctx contractapi.TransactionContextInterface, id string) (*Unit, error) {
 	if err := s.HasPermission(ctx, UnitsRead); err != nil {
 		return nil, err
@@ -164,6 +173,7 @@ func (s *SmartContract) GetUnit(ctx contractapi.TransactionContextInterface, id 
 	return FromUnitInner(&unit), nil
 }
 
+//Returns all Unit in the system
 func (s *SmartContract) GetAllUnits(ctx contractapi.TransactionContextInterface) ([]*Unit, error) {
 	if err := s.HasPermission(ctx, UnitsRead); err != nil {
 		return nil, err
@@ -195,6 +205,7 @@ func (s *SmartContract) GetAllUnits(ctx contractapi.TransactionContextInterface)
 	return assets, nil
 }
 
+//Removes Unit from the system
 func (s *SmartContract) DeleteUnit(ctx contractapi.TransactionContextInterface, id string) error {
 	if err := s.HasPermission(ctx, UnitsDelete); err != nil {
 		return err
